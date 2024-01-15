@@ -1,0 +1,83 @@
+---
+title: "sta302 tut 2 - opendatatoronto"
+author: "Brandon Benson"
+format: html
+---
+
+
+```{r}
+#### Preamble ####
+# Purpose: Clean the opendatatoronto dataset and preparing it to be suitable for analysis and create a graph of for the dataset.
+# Author: Brandon Benson
+# Email: brandon.benson@mail.utoronto.ca
+# Date: 16 January 2024
+
+
+```
+
+```{r}
+install.packages("opendatatoronto")
+
+library(tidyverse)
+library(opendatatoronto)
+```
+```{r}
+# Here I picked a random data set from the Open Data Toronto package and imported it into R.
+package <- show_package("821fed42-92e5-4a49-8684-394c1423b78a")
+package
+
+resources <- list_package_resources("821fed42-92e5-4a49-8684-394c1423b78a")
+
+datastore_resources <- filter(resources, tolower(format) %in% c('csv', 'geojson'))
+
+data <- filter(datastore_resources, row_number()==1) %>% get_resource()
+data
+```
+
+
+```{r}
+# Using the head(), summary(), and str() functions to gain an overview of the dataset. 
+head(data)
+summary(data)
+str(data)
+
+```
+
+```{r}
+# Making sure the missing values are accounted and wont affect the data for analysis.
+data <- na.omit(data)
+```
+
+```{r}
+# Removing and dealing with any duplicates that may affect the data analysis.
+
+data[duplicated(data), ]
+
+distinct(data)
+```
+
+```{r}
+# Here, I noticed that there are missing values " " in one of the column, so i replaced it with a custom value to remove any further complications.
+
+unique(data$BIA)
+
+data %>% select(BIA) 
+
+custom_value <- "Not Available"
+data <- data %>% mutate(BIA = replace(BIA, BIA == "", custom_value))
+
+
+```
+
+```{r}
+# Plotting of the graph showing the ward number corresponding to the public washroom in the data given.
+library(ggplot2)
+
+ggplot(data, aes(x = ADDRESSSTREET, y = WARD)) +
+         geom_bar(stat = "identity", fill = "grey") +
+         labs(title = "Graph of the ward number of the street furniture - public washroom", x = "Public washroom", y = "Ward number")
+```
+
+
+git clone https://github.com/brndnjbenson/sta302-tut2----opendatatoronto.git
+
